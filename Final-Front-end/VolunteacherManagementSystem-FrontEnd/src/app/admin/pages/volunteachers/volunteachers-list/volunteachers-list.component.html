@@ -1,0 +1,165 @@
+<style>
+  .btn{
+    border: none;
+    box-shadow: none;
+  }
+  .btn:active
+  {
+    border: none;
+    box-shadow: none;
+  }
+</style>
+<ng-container *ngIf="showProgressbar">
+  <div style="z-index: 100;position: -webkit-sticky;position:sticky;top:0;">
+    <mat-progress-bar mode="indeterminate" style="color:white;"></mat-progress-bar>
+  </div>
+</ng-container>
+<div class="header pb-5 pt-3 pt-md-8  bg-gradient-danger">
+  <div class="container-fluid">
+    <div class="header-body">
+      <h1 class="text-white title">Volunteachers</h1>
+
+      <p style="cursor: pointer;" class="text-right mr-3 text-white" (click)="download()"> <i
+          class="fas fa-download display-4"></i></p>
+
+          <div class="col-12">
+            <div class="row justify-content-center mx-3">
+                <div class="col-sm-6 col-12">
+                    <div class="form-group">
+                        <label class="form-control-label" for="input-filter">Select Filter</label>
+                        <select class="form-control form-control-alternative" id="input-filter" (change)="selectedFilter($event)">
+                            <option value="0" selected>Select</option>
+                            <option value="1">Project</option>
+                            <option value="2">Village</option>
+                            <option value="3">Status</option>
+                            <option value="4">User Type</option>
+                        </select>
+                    </div>
+                </div>
+                <div *ngIf='showProjects' class="col-sm-6 col-12">
+                    <div class="form-group">
+                        <label class="form-control-label" for="input-project">Select Project</label>
+                        <select class="form-control form-control-alternative" id="input-project" (change)="selectedProject($event)">
+                            <option *ngFor="let p of projects;let index=index" [value]="p.projectId" [selected]="index==0">{{p.projectName}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div *ngIf='showVillages' class="col-sm-6 col-12">
+                    <div class="form-group">
+                        <label class="form-control-label" for="input-village">Select Village</label>
+                        <select class="form-control form-control-alternative" id="input-village" (change)="selectedVillage($event)">
+                            <option *ngFor="let v of villages;let index=index"  [value]="v.villageId" [selected]="index==0" >{{v.villageName}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div *ngIf='showStatus' class="col-sm-6 col-12">
+                   
+                        <div class="form-group ">
+                            <label class="form-control-label" for="input-status">Status</label>
+                            <select class="form-control form-control-alternative" id="input-status" (change)="selectedStatus($event)">
+                                <option value="1" selected>Active</option>
+                                <option value="2">InActive</option>
+                            </select>
+                        </div>
+                    
+                </div>
+                <div *ngIf='showTypes' class="col-sm-6 col-12">
+                
+                      <div class="form-group ">
+                          <label class="form-control-label" for="input-type">User Type</label>
+                          <select class="form-control form-control-alternative" id="input-type" (change)="selectedType($event)">
+                              <option value="2" selected>Volunteachers</option>
+                              <option value="3">Local Volunteachers</option>
+                          </select>
+                      </div>
+                  
+              </div>
+            </div>
+        </div>
+        
+      <ng-container *ngIf="showSpinner">
+        <mat-spinner class="mx-auto my-4" color="primary" [diameter]="40">
+        </mat-spinner>
+      </ng-container>
+      
+      <ng-container *ngIf="vLength">
+        <div class="row justify-content-center my-4">
+          <div class="col-xl-10 mx-auto d-block">
+
+            <form class="example-container ">
+              <div class="col-lg-6 col-md-7 col-sm-7 mx-auto d-block">
+                <div class="form-group mb-0">
+                  <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
+                    <div class="input-group bg-white input-group-alternative p-0 border border-white"
+                      style="border-radius: 30px; ">
+                      <div class="input-group-prepend  ">
+                        <span class="input-group-text p-0 m-2"><i class="fas fa-search"></i></span>
+                      </div>
+                      <input autocomplete="off" class="form-control p-0 " style="border-radius: 30px;"
+                        placeholder="Search" type="text" (blur)="focus = false" [(ngModel)]="search" name="search">
+                    </div>
+                  </div>
+                </div>
+                <p class="text-center text-white mt-3"><small>Search by name, city,user type, status or village</small></p>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row justify-content-center" infiniteScroll [infiniteScrollDistance]="1"
+          [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
+          
+          <div *ngFor="let v of volunteachers | volunteacher: search ;trackBy:trackById;let l=length"
+            class="col-xl-4 col-lg-6 col-md-9 col-sm-8 mb-6">
+            
+            
+            <div class="card card-profile profile">
+              <span  class="d-block text-common text-right mt-0 mr-4 mb-0 h1">
+              <button class="btn bg-transparent" [disabled]="disabled" (click)="delete(v.volunteacherId)">
+                <b><i class="text-sm fas fa-trash text-danger"></i></b>
+              </button>
+            </span>
+              <div class="row justify-content-center">
+                <div class="col-lg-3 order-lg-2 ">
+                  <div class="card-profile-image">
+                   
+                    <a routerLink="/admin/volunteachers/{{v.user.userId}}/profile/posts">
+                      <img src="{{v.user.photo}}" class="mt-5 rounded-circle img-center">
+                    </a>
+                    
+                  </div>
+                </div>
+              </div>
+              <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4"></div>
+              <div class="card-body pt-0 pt-md-4">
+                <div class="row justify-content-center">
+
+                  <div class="text-center mt-md-8 mt-6">
+                    <span *ngIf='v.status==1' class="bg-success rounded px-2 mb-2 text-white ">Active</span>
+                    <span *ngIf='v.status==2' class="bg-danger rounded px-2 mb-2 text-white ">Inactive</span>
+                    <h2 class="display-4 mt-2 mb-2">
+                      {{v.user.userName}}
+                    </h2>
+
+                    <div *ngIf="v.user.type.type==='VOLUNTEACHER'" class=" mb-2">
+                      {{v.district.districtName}}, {{v.district.state.stateName}}
+                    </div>
+                    <div *ngIf="v.user.type.type==='LOCAL VOLUNTEACHER' && v.village!=null" class=" mb-2">
+                      {{v.village.villageName}}
+                    </div>
+                    <div class=" mb-2">
+
+                      {{v.user.email}}
+
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>

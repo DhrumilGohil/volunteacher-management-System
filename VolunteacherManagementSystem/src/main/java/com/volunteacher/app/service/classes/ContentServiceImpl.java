@@ -21,14 +21,23 @@ public class ContentServiceImpl implements ContentService {
 	@Override
 	public ResponseEntity<Object> addContent(Content content)
 	{
-		try {
-			Content saveContent = contentRepository.save(content);
-			return ResponseEntity.status(HttpStatus.CREATED).body(saveContent);
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on creating Content");
+		if(this.contentByGroup(content.getGroup().getGroupId()).getBody() !=null)
+		{
+			return this.updateContent(content, content.getGroup().getGroupId());
 		}
+		else 
+		{
+			try 
+			{
+				Content saveContent = contentRepository.save(content);
+				return ResponseEntity.status(HttpStatus.CREATED).body(saveContent);
+			} 
+			catch (Exception e) {
+				e.printStackTrace();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on creating Content");
+			}
+		}
+		
 	}
 	
 	@Override
@@ -61,7 +70,7 @@ public class ContentServiceImpl implements ContentService {
 	public ResponseEntity<Object> updateContent(Content content, int id)
 	{
 		try {
-			Content updateContent = contentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Content not found for id: "+id));
+			Content updateContent = contentRepository.findByGroupGroupId(id);
 			
 			updateContent.setContentData(content.getContentData());
 			updateContent.setGroup(content.getGroup());

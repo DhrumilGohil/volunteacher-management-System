@@ -22,11 +22,19 @@ public interface VolunteacherService {
 	
 	public List<Volunteacher> vtByToday();
 	
-	public int getVolunteacherStatus(int vid); 
+	public ResponseEntity<Object> getVolunteacherStatus(); 
 	
 	public ResponseEntity<Object> getTotalVolunteacher(); 
 	
 	public ResponseEntity<Object> getNewVolunteachers(int page);
 	
 	public ResponseEntity<Object> getAllNewVolunteachers();
+	
+	public ResponseEntity<Object> getAllVolunteachersByStatus(int page,int id);
+	
+	public ResponseEntity<Object> getAllVolunteachersByVillage(int page,int id);
+	
+	public ResponseEntity<Object> getAllVolunteachersByUserType(int page,int type);
+	
+	public ResponseEntity<Object> getAllVolunteachersByProject(int page,int project);
 }

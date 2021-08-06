@@ -163,29 +163,103 @@ public class VolnteacherServiceImpl implements VolunteacherService {
 	}
 	
 	@Override
-	public int getVolunteacherStatus(int vid) {
-		Volunteacher volunteacher = volunteacherRepository.findById(vid).orElseThrow(()->new ResourceNotFoundException("Error"));
-		int count = 0;
-		List<Session> sessions  = this.sessionRepository.sessionsForVolunteacher(volunteacher.getJoiningDate());
-		System.out.println(this.sessionRepository.sessionsForVolunteacher(volunteacher.getJoiningDate()));
-		for (Session session : sessions) {
-			session.getUsers();
-			for (User user : session.getUsers()) {
-				if(user.getUserId() == volunteacher.getUser().getUserId())
-				{
-					count++;
-					break;
+	public ResponseEntity<Object> getVolunteacherStatus() 
+	{
+		//Volunteacher volunteacher = volunteacherRepository.findById(vid).orElseThrow(()->new ResourceNotFoundException("Error"));
+		try 
+		{
+			for(Volunteacher volunteacher:volunteacherRepository.findAll())
+			{
+				int count = 0;
+				List<Session> sessions  = this.sessionRepository.sessionsForVolunteacher(volunteacher.getJoiningDate());
+				System.out.println(this.sessionRepository.sessionsForVolunteacher(volunteacher.getJoiningDate()));
+				for (Session session : sessions) {
+					session.getUsers();
+					for (User user : session.getUsers()) {
+						if(user.getUserId() == volunteacher.getUser().getUserId())
+						{
+							count++;							
+							break;
+						}
+					}
 				}
+				System.out.println(count +"vid:" + volunteacher.getUser().getUserId() + "s" +sessions.size()/2);
+				if(sessions.size() == 0)
+				{
+					volunteacher.setStatus(2);
+					volunteacherRepository.save(volunteacher);	
+				}
+				else {
+					if(count < (sessions.size()/2))
+					{
+						volunteacher.setStatus(2);
+						volunteacherRepository.save(volunteacher);				
+					}
+					else 
+					{
+						volunteacher.setStatus(1);
+						volunteacherRepository.save(volunteacher);				
+					}
+				}
+				
 			}
-		}
-		System.out.println(count);
-		if(count < sessions.size()/2)
+			return ResponseEntity.status(HttpStatus.OK).body("Status Updated successfully");
+		} 
+		catch (Exception e) 
 		{
-			return 2;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on updating status");
 		}
-		else 
+		
+	}
+
+	@Override
+	public ResponseEntity<Object> getAllVolunteachersByStatus(int page,int id) {
+		try {
+			Pageable pageable = PageRequest.of(page, 10);
+			Page<Volunteacher> volunteacherList = (Page<Volunteacher>) volunteacherRepository.findAllByStatus(pageable,id);
+			return ResponseEntity.status(HttpStatus.OK).body(volunteacherList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on fetch Volunteachers By Status");
+		}
+	}
+	
+	@Override
+	public ResponseEntity<Object> getAllVolunteachersByVillage(int page,int id) {
+		try 
 		{
-			return 1;
+			Pageable pageable = PageRequest.of(page, 10);
+			Page<Volunteacher> volunteacherList = (Page<Volunteacher>) volunteacherRepository.findAllByVillageVillageId(pageable, id);
+			return ResponseEntity.status(HttpStatus.OK).body(volunteacherList);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on fetch Volunteachers By Village");
+		}
+	}
+
+	@Override
+	public ResponseEntity<Object> getAllVolunteachersByUserType(int page, int type) {
+		try {
+			Pageable pageable = PageRequest.of(page, 10);
+			Page<Volunteacher> volunteacherList = (Page<Volunteacher>) volunteacherRepository.findAllByUserTypeTypeId(pageable, type);
+			return ResponseEntity.status(HttpStatus.OK).body(volunteacherList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on fetch Volunteachers By usertype");
+		}
+	}
+
+	@Override
+	public ResponseEntity<Object> getAllVolunteachersByProject(int page, int project) {
+		try {
+			Pageable pageable = PageRequest.of(page, 10);
+			Page<Volunteacher> volunteacherList = (Page<Volunteacher>) volunteacherRepository.findByProject(pageable, project);
+			return ResponseEntity.status(HttpStatus.OK).body(volunteacherList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on fetch Volunteachers By Project");
 		}
 	}
 
